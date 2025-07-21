@@ -1,0 +1,129 @@
+let todoContainerElement = document.getElementById("todoItemsContainer");
+let taskinput = document.getElementById("todoUserInput");
+
+function loadandget() {
+    if (localStorage.getItem("tasks") !== null) {
+        return JSON.parse(localStorage.getItem("tasks"));
+    } else {
+        console.log("deek");
+        return [];
+    }
+}
+let todotask = loadandget();
+let uniqueid = todotask.length;
+
+function onToStatusChange(labelid, checkboxid) {
+    console.log("checkbox.checked");
+    let checkbox = document.getElementById(checkboxid);
+    let label = document.getElementById(labelid);
+    console.log(checkbox.checked);
+    label.classList.toggle('checked');
+
+    let index = todotask.findIndex(function(i) {
+        if (labelid === ("label" + i.id)) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    let checkobject = todotask[index];
+    if (checkobject.check === true) {
+        checkobject.check = false;
+    } else {
+        checkobject.check = true;
+    }
+}
+
+function deletelist(todolist, uniqueid) {
+    let todo = document.getElementById(todolist);
+    let index = todotask.findIndex(function(i) {
+        console.log(i.id);
+        if (("task" + i.id) === todolist) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    todoContainerElement.removeChild(todo);
+    console.log(index);
+    todotask.splice(uniqueid - 1, 1);
+    console.log(uniqueid - 1);
+}
+
+function createtask(uniqueid, text) {
+    let checkboxid = "myCheckbox" + uniqueid;
+    let labelid = "label" + uniqueid;
+    let deleteid = "delete" + uniqueid;
+    let todolist = "list" + uniqueid;
+
+
+    let todoitemElement = document.createElement("li");
+    todoitemElement.classList.add("todo-item-container", "d-flex", "flex-row");
+    todoitemElement.id = todolist;
+    todoContainerElement.appendChild(todoitemElement);
+
+    let inputelement = document.createElement("input");
+    inputelement.type = "checkbox";
+    inputelement.id = checkboxid;
+    inputelement.classList.add("checkbox-input");
+
+    todoitemElement.appendChild(inputelement);
+
+    let labelcontainerElement = document.createElement("div");
+    labelcontainerElement.classList.add("label-container", "d-flex", "flex-row");
+    todoitemElement.appendChild(labelcontainerElement);
+
+    let labelElement = document.createElement("label");
+    labelElement.classList.add("checkbox-label");
+    labelElement.textContent = text;
+    labelElement.htmlFor = checkboxid;
+    labelElement.id = labelid;
+    if ((todotask[uniqueid - 1]).check === true) {
+        labelElement.classList.add("checked");
+        inputelement.checked = (todotask[uniqueid - 1]).check;
+    }
+    labelcontainerElement.appendChild(labelElement);
+
+    let deleteiconContainer = document.createElement("div");
+    deleteiconContainer.classList.add("delete-icon-container");
+    labelcontainerElement.appendChild(deleteiconContainer);
+
+    let deleteiconElement = document.createElement("i");
+    deleteiconElement.classList.add("far", "fa-trash-alt", "delete-icon");
+    deleteiconElement.id = deleteid;
+    deleteiconContainer.appendChild(deleteiconElement);
+
+    inputelement.onclick = function() {
+        onToStatusChange(labelid, checkboxid);
+        console.log("iuguigg");
+    };
+    deleteiconElement.onclick = function() {
+        deletelist(todolist, uniqueid);
+    };
+}
+
+function Add() {
+
+    let text = taskinput.value;
+    if (text === "") {
+        alert("Enter valid input");
+        return;
+    }
+    uniqueid = uniqueid + 1;
+    let newtodotask = {
+        "task": text,
+        "id": uniqueid,
+        "check": false,
+    };
+    todotask.push(newtodotask);
+    createtask(uniqueid, text);
+    taskinput.value = "";
+
+}
+
+function save() {
+    localStorage.setItem("tasks", JSON.stringify(todotask));
+}
+for (let i of todotask) {
+    createtask(i.id, i.task);
+}
